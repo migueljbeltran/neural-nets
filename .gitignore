@@ -1,3 +1,12 @@
+# Large course datasets (download from Canvas; train.csv exceeds GitHub's 100MB limit)
+data/stage_2_data/*.csv
+data/stage_3_data/
+data/stage_4_data/
+data/stage_5_data/
+
+# macOS metadata
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
