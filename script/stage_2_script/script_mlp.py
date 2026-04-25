@@ -5,6 +5,7 @@ Stage 2 - MLP on MNIST digit classification
 import numpy as np
 import torch
 import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
 import os
 
@@ -111,15 +112,34 @@ m.optimizer_class  = torch.optim.SGD
 m.optimizer_kwargs = {'momentum': 0.9}
 ablation_run('SGD + momentum=0.9', m)
 
-# Loss function
-m = Method_MLP('', '')
-m.model = nn.Sequential(
-    nn.Linear(784, 512), nn.BatchNorm1d(512), nn.ReLU(), nn.Dropout(0.3),
-    nn.Linear(512, 256), nn.BatchNorm1d(256), nn.ReLU(), nn.Dropout(0.3),
-    nn.Linear(256, 128), nn.BatchNorm1d(128), nn.ReLU(),
-    nn.Linear(128, 10),  nn.LogSoftmax(dim=1)
-)
-m.loss_function = nn.NLLLoss()
-ablation_run('NLLLoss + LogSoftmax', m)
+# Loss function — MSELoss requires one-hot targets instead of class indices
+class MSEMethod(Method_MLP):
+    def train_model(self, X, y):
+        self.train()
+        optimizer = self.optimizer_class(self.parameters(), lr=self.learning_rate, **self.optimizer_kwargs)
+        loader = DataLoader(
+            TensorDataset(torch.FloatTensor(X), torch.LongTensor(y)),
+            batch_size=self.batch_size, shuffle=True
+        )
+        self.train_loss_history = []
+        self.train_acc_history  = []
+        for epoch in range(self.max_epoch):
+            epoch_loss, correct, total = 0.0, 0, 0
+            for X_batch, y_batch in loader:
+                optimizer.zero_grad()
+                outputs = self.forward(X_batch)
+                y_onehot = nn.functional.one_hot(y_batch, num_classes=10).float()
+                loss = self.loss_function(torch.softmax(outputs, dim=1), y_onehot)
+                loss.backward()
+                optimizer.step()
+                epoch_loss += loss.item() * X_batch.size(0)
+                correct    += (outputs.argmax(dim=1) == y_batch).sum().item()
+                total      += X_batch.size(0)
+            self.train_loss_history.append(epoch_loss / total)
+            self.train_acc_history.append(correct / total)
+
+m = MSEMethod('', '')
+m.loss_function = nn.MSELoss()
+ablation_run('MSELoss', m)
 
 print('****************************************\n')

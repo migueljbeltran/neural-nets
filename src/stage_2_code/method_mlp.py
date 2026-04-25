@@ -13,7 +13,7 @@ from src.base_class.method import method
 
 class Method_MLP(method, nn.Module):
 
-    learning_rate = 1e-3
+    learning_rate = 0.001
     max_epoch     = 20
     batch_size    = 256
 
