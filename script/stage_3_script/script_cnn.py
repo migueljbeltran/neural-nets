@@ -120,6 +120,50 @@ ABLATIONS = [
 ]
 
 
+ORL_ABLATION_BASE = dict(
+    conv_channels=[16, 32], hidden_dim=128, max_epoch=10, batch_size=32,
+    optimizer_name='adam', loss_name='cross_entropy', learning_rate=0.001,
+    kernel_size=3, padding=1, stride=1, pool='max', pool_kernel=2,
+)
+
+ORL_ABLATIONS = [
+    ('baseline',      {}),
+    ('deeper-net',    dict(conv_channels=[16, 32, 64])),
+    ('wider-hidden',  dict(hidden_dim=256)),
+    ('larger-kernel', dict(kernel_size=5, padding=2)),
+]
+
+CIFAR_ABLATION_BASE = dict(
+    conv_channels=[32, 64, 128], hidden_dim=256, max_epoch=5, batch_size=128,
+    optimizer_name='adam', loss_name='cross_entropy', learning_rate=0.001,
+    kernel_size=3, padding=1, stride=1, pool='max', pool_kernel=2,
+)
+
+CIFAR_ABLATIONS = [
+    ('baseline',      {}),
+    ('deeper-net',    dict(conv_channels=[32, 64, 128, 256])),
+    ('wider-hidden',  dict(hidden_dim=512)),
+    ('larger-kernel', dict(kernel_size=5, padding=2)),
+]
+
+
+def run_ablation_study(dataset_name, dataset_file, single_channel,
+                       base_cfg, ablations):
+    scores_by_name = {}
+    print(f'\n===== {dataset_name} configuration impact study =====')
+    for name, override in ablations:
+        cfg = {**base_cfg, **override}
+        run_name = f'{dataset_name}_{name}'
+        scores_by_name[run_name] = run_experiment(
+            name=run_name,
+            dataset_file=dataset_file,
+            single_channel=single_channel,
+            model_kwargs=cfg,
+            title=f'{dataset_name} Ablation - {name}',
+        )
+    return scores_by_name
+
+
 def main():
     os.makedirs(RESULT_DIR, exist_ok=True)
     all_scores = {}
@@ -127,17 +171,15 @@ def main():
     for run in MAIN_RUNS:
         all_scores[run['name']] = run_experiment(**run)
 
-    print('\n===== MNIST configuration impact study =====')
-    for name, override in ABLATIONS:
-        cfg = {**ABLATION_BASE, **override}
-        scores = run_experiment(
-            name=f'MNIST_{name}',
-            dataset_file='MNIST',
-            single_channel=True,
-            model_kwargs=cfg,
-            title=f'MNIST Ablation - {name}',
-        )
-        all_scores[f'MNIST_{name}'] = scores
+    all_scores.update(run_ablation_study(
+        'MNIST', 'MNIST', True, ABLATION_BASE, ABLATIONS,
+    ))
+    all_scores.update(run_ablation_study(
+        'ORL', 'ORL', True, ORL_ABLATION_BASE, ORL_ABLATIONS,
+    ))
+    all_scores.update(run_ablation_study(
+        'CIFAR', 'CIFAR', False, CIFAR_ABLATION_BASE, CIFAR_ABLATIONS,
+    ))
 
     print('\n===== Final Summary =====')
     for k, v in all_scores.items():
