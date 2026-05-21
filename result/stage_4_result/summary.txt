@@ -1,0 +1,11 @@
+Stage 4 Summary
+
+Classification
+RNN: {'accuracy': 0.6267, 'precision': 0.6509, 'recall': 0.5466, 'f1': 0.5942}
+LSTM: {'accuracy': 0.7584, 'precision': 0.7784, 'recall': 0.7225, 'f1': 0.7494}
+GRU: {'accuracy': 0.8241, 'precision': 0.8593, 'recall': 0.775, 'f1': 0.815}
+
+Generation
+RNN: what did the winter candy are on a few for a little lover it was his chickens by was a pair
+LSTM: what did the other candy the other day says up to the road to the his chickens the tree you get
+GRU: what did the other slide the bee use to the other day but it was a chickens joke because you in
