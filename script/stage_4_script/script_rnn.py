@@ -128,6 +128,78 @@ def run_classification():
     return scores
 
 
+def run_ablation():
+    print('\n===== Ablation Study (LSTM) =====')
+    data_obj = Dataset_Loader(
+        'IMDb Reviews',
+        '',
+        task='classification',
+        max_vocab_size=CLASSIFICATION_MAX_VOCAB,
+        max_length=CLASSIFICATION_MAX_LENGTH,
+    )
+    data_obj.dataset_source_folder_path = CLASSIFICATION_DIR
+    data = data_obj.load()
+
+    X_train = data['train']['X']
+    train_lengths = data['train']['lengths']
+    y_train = data['train']['y']
+    X_test = data['test']['X']
+    test_lengths = data['test']['lengths']
+    y_test = data['test']['y']
+    vocab_size = len(data['vocab'])
+
+    configs = [
+        ('Baseline (hidden=128, drop=0.4)', 128, 0.4, 4),
+        ('Larger hidden (hidden=256, drop=0.4)', 256, 0.4, 4),
+        ('Smaller hidden (hidden=64, drop=0.4)', 64, 0.4, 4),
+        ('No dropout (hidden=128, drop=0.0)', 128, 0.0, 4),
+        ('Higher dropout (hidden=128, drop=0.6)', 128, 0.6, 4),
+        ('More epochs (hidden=128, drop=0.4, ep=8)', 128, 0.4, 8),
+    ]
+
+    evaluator = Evaluate_Metrics('metrics', '')
+    results = []
+
+    for config_name, hidden_dim, dropout, max_epoch in configs:
+        set_seed()
+        model = Method_RNN_Classifier(
+            'lstm-ablation',
+            '',
+            vocab_size=vocab_size,
+            cell_type='lstm',
+            hidden_dim=hidden_dim,
+            dropout=dropout,
+            max_epoch=max_epoch,
+        )
+        pred_y = model.run(X_train, train_lengths, y_train, X_test, test_lengths)
+        evaluator.data = {'true_y': y_test, 'pred_y': pred_y}
+        score = evaluator.evaluate()
+        results.append((config_name, score))
+        print(f'{config_name}: {score}')
+
+    print('\nABLATION RESULTS')
+    print('Config                          | Accuracy | Precision | Recall | F1')
+    for config_name, score in results:
+        print(
+            f'{config_name:<32} | '
+            f'{score["accuracy"]:.4f}   | '
+            f'{score["precision"]:.4f}    | '
+            f'{score["recall"]:.4f} | '
+            f'{score["f1"]:.4f}'
+        )
+
+    csv_path = os.path.join(RESULT_DIR, 'ablation_results.csv')
+    with open(csv_path, 'w', encoding='utf-8') as f:
+        f.write('config,accuracy,precision,recall,f1\n')
+        for config_name, score in results:
+            f.write(
+                f'{config_name},{score["accuracy"]},{score["precision"]},'
+                f'{score["recall"]},{score["f1"]}\n'
+            )
+    print(f'\nablation results saved to {csv_path}')
+    return results
+
+
 def run_generation():
     print('\n===== Text Generation =====')
     data_obj = Dataset_Loader(
@@ -188,6 +260,7 @@ def main():
     os.makedirs(RESULT_DIR, exist_ok=True)
     set_seed()
     scores = run_classification()
+    run_ablation()
     generations = run_generation()
     write_summary(scores, generations)
 
