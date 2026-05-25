@@ -43,7 +43,10 @@ class Method_RNN_Classifier(method, nn.Module):
         self.train_acc_history = []
 
         self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
-        rnn_class = {'rnn': nn.RNN, 'lstm': nn.LSTM, 'gru': nn.GRU}[cell_type]
+        rnn_layers = {'rnn': nn.RNN, 'lstm': nn.LSTM, 'gru': nn.GRU}
+        if cell_type not in rnn_layers:
+            raise ValueError('cell_type must be one of: rnn, lstm, gru')
+        rnn_class = rnn_layers[cell_type]
         self.rnn = rnn_class(
             embedding_dim,
             hidden_dim,
