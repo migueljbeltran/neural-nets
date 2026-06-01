@@ -1,0 +1,20 @@
+{
+  "cora": {
+    "accuracy": 0.838,
+    "precision": 0.8172,
+    "recall": 0.8417,
+    "f1": 0.8229
+  },
+  "pubmed": {
+    "accuracy": 0.78,
+    "precision": 0.7694,
+    "recall": 0.7938,
+    "f1": 0.7784
+  },
+  "citeseer": {
+    "accuracy": 0.678,
+    "precision": 0.6117,
+    "recall": 0.5023,
+    "f1": 0.5048
+  }
+}

@@ -1,0 +1,22 @@
+dataset,variant,accuracy,precision,recall,f1
+cora,Baseline (2-layer, h=16, drop=0.5),0.838,0.8172,0.8417,0.8229
+cora,1 layer (no hidden),0.792,0.7928,0.7589,0.7668
+cora,3 layers,0.805,0.7856,0.8116,0.7869
+cora,Hidden = 8,0.814,0.7981,0.8187,0.8039
+cora,Hidden = 32,0.83,0.81,0.829,0.8135
+cora,Hidden = 64,0.836,0.8178,0.8416,0.8222
+cora,No dropout (drop=0.0),0.823,0.8048,0.8203,0.8067
+pubmed,Baseline (2-layer, h=16, drop=0.5),0.78,0.7694,0.7938,0.7784
+pubmed,1 layer (no hidden),0.773,0.7745,0.7825,0.7735
+pubmed,3 layers,0.773,0.7589,0.7843,0.7676
+pubmed,Hidden = 8,0.788,0.7778,0.7962,0.7851
+pubmed,Hidden = 32,0.783,0.776,0.796,0.7803
+pubmed,Hidden = 64,0.783,0.7742,0.7988,0.7803
+pubmed,No dropout (drop=0.0),0.785,0.7749,0.798,0.7834
+citeseer,Baseline (2-layer, h=16, drop=0.5),0.678,0.6117,0.5023,0.5048
+citeseer,1 layer (no hidden),0.646,0.6137,0.4612,0.4674
+citeseer,3 layers,0.681,0.6001,0.5179,0.5226
+citeseer,Hidden = 8,0.675,0.5992,0.4942,0.4936
+citeseer,Hidden = 32,0.697,0.6704,0.5313,0.5446
+citeseer,Hidden = 64,0.704,0.6409,0.5413,0.5521
+citeseer,No dropout (drop=0.0),0.693,0.645,0.5205,0.5246
